@@ -1,0 +1,302 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Audio Classification Plots</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                margin: 20px;
+                background-color: #f8f9fa;
+                color: #333;
+                line-height: 1.6;
+            }
+            h1 {
+                color: #2c3e50;
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #eee;
+            }
+            h2 {
+                color: #3498db;
+                margin-top: 30px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #eee;
+            }
+            .plot-container {
+                background-color: white;
+                padding: 25px;
+                margin: 30px 0;
+                border-radius: 10px;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                transition: transform 0.2s;
+            }
+            .plot-container:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            }
+            .plot {
+                text-align: center;
+                margin: 20px 0;
+            }
+            .plot img {
+                max-width: 100%;
+                height: auto;
+                border: 1px solid #eee;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+            .description {
+                margin-top: 20px;
+                line-height: 1.7;
+                color: #444;
+                background-color: #f8f9fa;
+                padding: 15px;
+                border-radius: 5px;
+                border-left: 4px solid #3498db;
+            }
+            .key-points {
+                background-color: #e8f4f8;
+                padding: 15px;
+                border-radius: 5px;
+                margin-top: 15px;
+            }
+            .key-points h3 {
+                margin-top: 0;
+                color: #2980b9;
+            }
+            .key-points ul {
+                padding-left: 20px;
+            }
+            .key-points li {
+                margin-bottom: 8px;
+            }
+            .highlight {
+                font-weight: bold;
+                color: #2980b9;
+            }
+            .note {
+                font-style: italic;
+                color: #7f8c8d;
+                margin-top: 10px;
+            }
+            .header-with-icon {
+                display: flex;
+                align-items: center;
+            }
+            .header-with-icon i {
+                margin-right: 10px;
+                color: #3498db;
+            }
+            .navigation {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                z-index: 100;
+            }
+            .navigation ul {
+                list-style-type: none;
+                padding: 0;
+                margin: 0;
+            }
+            .navigation li {
+                margin-bottom: 5px;
+            }
+            .navigation a {
+                text-decoration: none;
+                color: #3498db;
+            }
+            .navigation a:hover {
+                text-decoration: underline;
+            }
+            .section-divider {
+                height: 2px;
+                background: linear-gradient(to right, #3498db, transparent);
+                margin: 40px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="navigation">
+            <ul>
+                <li><a href="#training">Training History</a></li>
+                <li><a href="#distribution">Class Distribution</a></li>
+                <li><a href="#spectrograms">Spectrograms</a></li>
+                <li><a href="#mfcc">MFCC Features</a></li>
+                <li><a href="#metrics">Performance Metrics</a></li>
+                <li><a href="#confusion">Confusion Matrix</a></li>
+            </ul>
+        </div>
+
+        <h1>Audio Classification Visualization Results</h1>
+        <p style="text-align: center; margin-bottom: 30px;">
+            This page shows the results of training and evaluating an audio classification model.
+            Each visualization helps understand different aspects of the data and model performance.
+        </p>
+
+        <div class="section-divider"></div>
+
+        <div id="training" class="plot-container">
+            <h2 class="header-with-icon">Training History</h2>
+            <div class="plot">
+                <img src="training_history.png" alt="Training History">
+            </div>
+            <div class="description">
+                <p>These plots show how the model's performance improved during training:</p>
+                <ul>
+                    <li><strong>Accuracy</strong> (left): How often the model's predictions were correct</li>
+                    <li><strong>Loss</strong> (right): The error measurement that the model tries to minimize</li>
+                </ul>
+                <p>The blue lines show performance on training data, while red lines show performance on validation data (data the model hasn't seen during training).</p>
+
+                <div class="key-points">
+                    <h3>What to Look For:</h3>
+                    <ul>
+                        <li>Both accuracy and loss should improve over time (accuracy increases, loss decreases)</li>
+                        <li>If the blue and red lines diverge significantly, it may indicate <span class="highlight">overfitting</span> (the model is memorizing training data rather than learning general patterns)</li>
+                        <li>The best model is usually the one with the highest validation accuracy or lowest validation loss</li>
+                    </ul>
+                </div>
+
+                <p class="note">Note: The training process automatically stops when the model stops improving, which is why the plots may not show all epochs.</p>
+            </div>
+        </div>
+
+        <div id="distribution" class="plot-container">
+            <h2 class="header-with-icon">Class Distribution</h2>
+            <div class="plot">
+                <img src="class_distribution.png" alt="Class Distribution">
+            </div>
+            <div class="description">
+                <p>This pie chart shows the distribution of audio classes in the dataset:</p>
+                <ul>
+                    <li>Each slice represents a different audio class</li>
+                    <li>The size of each slice shows the proportion of that class in the dataset</li>
+                    <li>The percentages indicate what portion of the dataset belongs to each class</li>
+                </ul>
+
+                <div class="key-points">
+                    <h3>Why This Matters:</h3>
+                    <ul>
+                        <li>A balanced dataset (similar sized slices) usually leads to better model performance</li>
+                        <li>If classes are imbalanced, the model might be biased toward the majority classes</li>
+                        <li>Understanding class distribution helps interpret the model's performance metrics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="spectrograms" class="plot-container">
+            <h2 class="header-with-icon">Spectrograms</h2>
+            <div class="plot">
+                <img src="spectrograms.png" alt="Spectrograms">
+            </div>
+            <div class="description">
+                <p>Spectrograms visualize the frequency content of audio signals over time:</p>
+                <ul>
+                    <li>The <strong>x-axis</strong> represents time</li>
+                    <li>The <strong>y-axis</strong> represents frequency (higher = higher pitch)</li>
+                    <li>The <strong>color intensity</strong> represents amplitude/loudness (brighter = louder)</li>
+                </ul>
+
+                <div class="key-points">
+                    <h3>What to Look For:</h3>
+                    <ul>
+                        <li>Each audio class typically has a distinct spectral pattern</li>
+                        <li>Horizontal lines indicate sustained tones at specific frequencies</li>
+                        <li>Vertical lines indicate sudden sounds or transients</li>
+                        <li>The model learns to recognize these patterns to classify audio</li>
+                    </ul>
+                </div>
+
+                <p class="note">These visual patterns are what the model uses to distinguish between different audio classes.</p>
+            </div>
+        </div>
+
+        <div id="mfcc" class="plot-container">
+            <h2 class="header-with-icon">MFCC Features</h2>
+            <div class="plot">
+                <img src="mfccs.png" alt="MFCC Features">
+            </div>
+            <div class="description">
+                <p>Mel-Frequency Cepstral Coefficients (MFCCs) are features extracted from audio that represent how humans perceive sound:</p>
+                <ul>
+                    <li>The <strong>x-axis</strong> represents time frames</li>
+                    <li>The <strong>y-axis</strong> represents different MFCC coefficients</li>
+                    <li>The <strong>color</strong> represents the value of each coefficient</li>
+                </ul>
+
+                <div class="key-points">
+                    <h3>Why We Use MFCCs:</h3>
+                    <ul>
+                        <li>They capture the most important aspects of sound as perceived by humans</li>
+                        <li>They compress the information in spectrograms into a more compact form</li>
+                        <li>They're widely used in speech and audio recognition because they work well</li>
+                        <li>Different audio classes create different MFCC patterns</li>
+                    </ul>
+                </div>
+
+                <p class="note">MFCCs are the actual features fed into the machine learning model, not the raw audio.</p>
+            </div>
+        </div>
+
+        <div id="metrics" class="plot-container">
+            <h2 class="header-with-icon">Performance Metrics</h2>
+            <div class="plot">
+                <img src="performance_metrics.png" alt="Performance Metrics">
+            </div>
+            <div class="description">
+                <p>This bar chart shows the key performance metrics of the classification model:</p>
+
+                <div class="key-points">
+                    <h3>Understanding the Metrics:</h3>
+                    <ul>
+                        <li><strong>Precision</strong>: When the model predicts a class, how often is it correct? (Measures false positives)</li>
+                        <li><strong>Recall</strong>: Out of all actual instances of a class, how many did the model correctly identify? (Measures false negatives)</li>
+                        <li><strong>F1 Score</strong>: The harmonic mean of precision and recall, providing a balance between the two</li>
+                    </ul>
+                </div>
+
+                <p>All metrics range from 0 to 1, where higher is better. A score above 0.7 is generally considered good, above 0.8 is very good, and above 0.9 is excellent.</p>
+
+                <p class="note">The overall accuracy is shown at the bottom of the chart and represents the percentage of all predictions that were correct.</p>
+            </div>
+        </div>
+
+        <div id="confusion" class="plot-container">
+            <h2 class="header-with-icon">Confusion Matrix</h2>
+            <div class="plot">
+                <img src="../evaluation/confusion_matrix.png" alt="Confusion Matrix">
+            </div>
+            <div class="description">
+                <p>The confusion matrix provides a detailed breakdown of the model's predictions:</p>
+
+                <div class="key-points">
+                    <h3>How to Read It:</h3>
+                    <ul>
+                        <li>Each <strong>row</strong> represents the actual class (ground truth)</li>
+                        <li>Each <strong>column</strong> represents the predicted class</li>
+                        <li>The <strong>diagonal cells</strong> (highlighted in green) show correct predictions</li>
+                        <li>The <strong>off-diagonal cells</strong> show errors or "confusions"</li>
+                    </ul>
+                </div>
+
+                <p>The left matrix shows the actual count of samples, while the right matrix shows the percentage of each true class that was predicted as each class.</p>
+
+                <p>For example, if row 'A' has 10 samples and 7 were correctly classified as 'A' while 3 were misclassified as 'B', the normalized matrix would show 70% for (A,A) and 30% for (A,B).</p>
+
+                <p class="note">A perfect model would have 100% along the diagonal and 0% elsewhere. The class accuracy ratings on the right show how well the model performs for each individual class.</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 40px 0; color: #7f8c8d;">
+            <p>Audio Classification Project - Created with TensorFlow and Python</p>
+        </div>
+    </body>
+    </html>
+    

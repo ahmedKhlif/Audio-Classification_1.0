@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  audio-classification:
+    build: .
+    image: audio-classification:latest
+    container_name: audio-classification
+    volumes:
+      - ./evaluation:/app/evaluation
+      - ./models:/app/models
+      - ./clean:/app/clean
+      - ./plots:/app/plots
+      - ./wavfiles:/app/wavfiles
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TF_CPP_MIN_LOG_LEVEL=2
+      - NUMBA_CACHE_DIR=/tmp/numba_cache
+    restart: "no"
+    command: run_and_display.py
+
+  # Service for running individual scripts
+  audio-tools:
+    image: audio-classification:latest
+    container_name: audio-tools
+    profiles: ["tools"]
+    volumes:
+      - ./evaluation:/app/evaluation
+      - ./models:/app/models
+      - ./clean:/app/clean
+      - ./plots:/app/plots
+      - ./wavfiles:/app/wavfiles
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: "no"
+    # This service is meant to be used with explicit commands
+    # Example: docker-compose run --rm audio-tools display_plots.py

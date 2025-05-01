@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.io import wavfile
 from python_speech_features import mfcc, logfbank
 import librosa
+from cfg import Config
 
 def plot_signals(signals):
     num_signals = len(signals)
@@ -145,8 +146,15 @@ plot_mfccs(mfccs)
 plt.savefig("mfccs.png")  # Added this line
 plt.show()
 
+# Initialize config to get envelope threshold
+config = Config()
+
+# Create clean directory if it doesn't exist
+os.makedirs('clean', exist_ok=True)
+
 if len(os.listdir('clean')) == 0:
+    print("Processing audio files with envelope threshold:", config.envelope_threshold)
     for f in tqdm(df.fname):
-        signal, rate = librosa.load('wavfiles/' + f, sr=16000)
-        mask = envelope(signal, rate, 0.0005)
+        signal, rate = librosa.load('wavfiles/' + f, sr=config.rate)
+        mask = envelope(signal, rate, config.envelope_threshold)
         wavfile.write(filename='clean/' + f, rate=rate, data=signal[mask])

@@ -1,4 +1,3 @@
-import pickle
 import os
 import numpy as np
 from tqdm import tqdm
@@ -7,6 +6,7 @@ from python_speech_features import mfcc
 from tensorflow.keras.models import load_model
 import pandas as pd
 from sklearn.metrics import accuracy_score
+from cfg import Config
 
 def build_predictions(audio_directory):
     true_labels = []
@@ -23,17 +23,17 @@ def build_predictions(audio_directory):
         for start_idx in range(0, audio_waveform.shape[0] - config.step, config.step):
             audio_sample = audio_waveform[start_idx:start_idx + config.step]
             mfcc_features = mfcc(
-                audio_sample, 
-                sample_rate, 
-                numcep=config.nfeat, 
-                nfilt=config.nfilt, 
+                audio_sample,
+                sample_rate,
+                numcep=config.nfeat,
+                nfilt=config.nfilt,
                 nfft=config.nfft
             )
 
             if config.min is None or config.max is None:
                 config.min = np.min(mfcc_features)
                 config.max = np.max(mfcc_features)
-              
+
             normalized_features = (mfcc_features - config.min) / (config.max - config.min)
 
             if config.mode == 'conv':
@@ -54,20 +54,23 @@ def build_predictions(audio_directory):
 data_frame = pd.read_csv('instruments.csv')
 class_labels = list(np.unique(data_frame.label))
 file_to_label_mapping = dict(zip(data_frame.fname, data_frame.label))
-pickle_path = os.path.join('pickles', 'conv.p')
 
-# Load configuration
-with open(pickle_path, 'rb') as handle:
-    config = pickle.load(handle)
+# Create configuration
+config = Config(mode='conv')
 
 # Load pre-trained model
 model = load_model(config.model_path)
 
+# Print configuration information
+print(f"Using configuration: Sample rate={config.rate}Hz, Mode={config.mode}")
+print(f"Model loaded from: {config.model_path}")
+
 # Build predictions
+print("\nMaking predictions on audio files...")
 true_labels, predicted_labels, file_probabilities = build_predictions('clean')
 accuracy = accuracy_score(y_true=true_labels, y_pred=predicted_labels)
 
-print("Accuracy score: {:.2f}".format(accuracy))
+print("\nAccuracy score: {:.2f}".format(accuracy))
 
 # Append predictions to the dataframe
 probability_list = []
