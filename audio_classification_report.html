@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Classification Technical Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #3498db;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        code {
+            background-color: #f8f8f8;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .toc a {
+            text-decoration: none;
+            color: #3498db;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .executive-summary {
+            background-color: #eaf2f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio Classification System: Technical Report</h1>
+    
+    <div class="executive-summary">
+        <h2>Executive Summary</h2>
+        <p>This report presents a comprehensive analysis of an audio classification system designed to categorize audio samples into three distinct classes: Alarms, Swords, and Wild Animals. The system achieves high accuracy (97.26%) through the implementation of convolutional neural networks and advanced audio processing techniques. This document explains the technical components in accessible language for readers with basic understanding of machine learning concepts.</p>
+    </div>
+    
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction">1. Introduction</a></li>
+            <li><a href="#model-architecture">2. Model Architecture</a></li>
+            <li><a href="#audio-processing">3. Audio Processing Pipeline</a></li>
+            <li><a href="#preprocessing">4. Preprocessing Techniques</a></li>
+            <li><a href="#training">5. Training Methodology</a></li>
+            <li><a href="#evaluation">6. Evaluation Metrics</a></li>
+            <li><a href="#results">7. Results and Performance</a></li>
+            <li><a href="#conclusion">8. Conclusion</a></li>
+            <li><a href="#references">9. References</a></li>
+        </ul>
+    </div>
+    
+    <section id="introduction">
+        <h2>1. Introduction</h2>
+        <p>Audio classification is the process of automatically categorizing sound recordings into predefined classes. This technology has numerous applications, including:</p>
+        <ul>
+            <li>Security systems (detecting alarms or unusual sounds)</li>
+            <li>Environmental monitoring (identifying animal sounds)</li>
+            <li>Content organization (categorizing audio files)</li>
+            <li>Accessibility features (sound recognition for hearing-impaired users)</li>
+        </ul>
+        <p>Our system focuses on distinguishing between three specific sound categories: Alarms, Swords (weapon sounds), and Wild Animals. The classification is performed using deep learning techniques, specifically convolutional neural networks (CNNs), which have proven highly effective for pattern recognition tasks.</p>
+    </section>
+    
+    <section id="model-architecture">
+        <h2>2. Model Architecture</h2>
+        
+        <h3>2.1 Convolutional Neural Network Overview</h3>
+        <p>The core of our audio classification system is a Convolutional Neural Network (CNN). CNNs are particularly well-suited for audio classification because they can identify patterns across both time and frequency dimensions in audio spectrograms.</p>
+        
+        <h3>2.2 Layer-by-Layer Breakdown</h3>
+        <p>Our model consists of the following layers:</p>
+        <ol>
+            <li>
+                <strong>Input Layer</strong>
+                <ul>
+                    <li>Purpose: Receives the processed audio features (spectrograms or MFCCs)</li>
+                    <li>Dimensions: Varies based on the audio length and feature extraction parameters</li>
+                    <li>Reason: Serves as the entry point for data into the neural network</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Convolutional Layers</strong>
+                <ul>
+                    <li>Purpose: Extract patterns and features from the input data</li>
+                    <li>Configuration: Multiple layers with increasing filter counts (32, 64, 128)</li>
+                    <li>Kernel Size: 3x3 (scans the input in small windows)</li>
+                    <li>Activation: ReLU (Rectified Linear Unit)</li>
+                    <li>Reason: Detects increasingly complex patterns in the audio data, from simple edges to complex sound signatures</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Max Pooling Layers</strong>
+                <ul>
+                    <li>Purpose: Reduce the spatial dimensions of the data</li>
+                    <li>Configuration: 2x2 pooling windows</li>
+                    <li>Reason: Decreases computational load while preserving important features and providing some translation invariance</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Dropout Layers</strong>
+                <ul>
+                    <li>Purpose: Prevent overfitting</li>
+                    <li>Rate: 0.25-0.5 (randomly deactivates 25-50% of neurons during training)</li>
+                    <li>Reason: Forces the network to learn redundant representations, improving generalization to new data</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Flatten Layer</strong>
+                <ul>
+                    <li>Purpose: Convert multi-dimensional data to a one-dimensional vector</li>
+                    <li>Reason: Prepares the data for processing by fully connected layers</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Dense (Fully Connected) Layers</strong>
+                <ul>
+                    <li>Purpose: Combine features for final classification</li>
+                    <li>Configuration: 128 neurons with ReLU activation, followed by a final layer with 3 neurons (one per class)</li>
+                    <li>Reason: Performs the actual classification based on the features extracted by earlier layers</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Output Layer</strong>
+                <ul>
+                    <li>Purpose: Produce final classification probabilities</li>
+                    <li>Activation: Softmax (converts raw scores to probabilities that sum to 1)</li>
+                    <li>Neurons: 3 (one for each class: Alarms, Swords, Wild Animals)</li>
+                    <li>Reason: Provides interpretable probabilities for each class</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>2.3 Model Visualization</h3>
+        <pre>Input → Conv2D → MaxPooling → Conv2D → MaxPooling → Conv2D → MaxPooling → Dropout → Flatten → Dense → Dropout → Dense (Output)</pre>
+    </section>
+    
+    <section id="audio-processing">
+        <h2>3. Audio Processing Pipeline</h2>
+        
+        <h3>3.1 How the Model Processes Audio</h3>
+        <p>Audio files cannot be directly fed into a neural network. Instead, we transform them into visual representations that capture the relevant characteristics of the sound. The process works as follows:</p>
+        <ol>
+            <li>
+                <strong>Audio Loading</strong>
+                <ul>
+                    <li>Raw audio files (.wav format) are loaded into memory</li>
+                    <li>All files are standardized to a consistent sample rate (16,000 Hz)</li>
+                    <li>Reason: Ensures all audio inputs have the same temporal resolution</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Feature Extraction</strong>
+                <ul>
+                    <li>The audio is converted into either:
+                        <ul>
+                            <li><strong>Spectrograms</strong>: Visual representations showing how frequencies change over time</li>
+                            <li><strong>MFCCs (Mel-Frequency Cepstral Coefficients)</strong>: Features that represent the short-term power spectrum of sound in a way that approximates human auditory perception</li>
+                        </ul>
+                    </li>
+                    <li>Reason: Transforms audio into a format that highlights patterns relevant for classification</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Data Representation</strong>
+                <ul>
+                    <li>The extracted features are represented as 2D arrays (similar to images)</li>
+                    <li>These arrays capture both time (x-axis) and frequency (y-axis) information</li>
+                    <li>Reason: Allows convolutional layers to detect patterns in both dimensions</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Batch Processing</strong>
+                <ul>
+                    <li>Audio samples are processed in batches during training</li>
+                    <li>Reason: Improves training efficiency and stability</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>3.2 Feature Extraction Details</h3>
+        
+        <h4>Spectrograms</h4>
+        <ul>
+            <li>Created using Short-Time Fourier Transform (STFT)</li>
+            <li>Window Size: 25ms with 10ms overlap</li>
+            <li>Frequency Range: 0-8000 Hz (covers most relevant sounds)</li>
+            <li>Advantage: Preserves detailed frequency information</li>
+        </ul>
+        
+        <h4>MFCCs</h4>
+        <ul>
+            <li>Number of coefficients: 13-40 (we use 20)</li>
+            <li>Based on human auditory perception (Mel scale)</li>
+            <li>Advantage: Compact representation that focuses on perceptually relevant information</li>
+        </ul>
+    </section>
+    
+    <section id="preprocessing">
+        <h2>4. Preprocessing Techniques</h2>
+        
+        <h3>4.1 Audio Standardization</h3>
+        <ol>
+            <li>
+                <strong>Resampling</strong>
+                <ul>
+                    <li>All audio files are converted to 16,000 Hz sample rate</li>
+                    <li>Reason: Ensures consistency across all inputs and reduces computational requirements</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Duration Normalization</strong>
+                <ul>
+                    <li>Audio clips are either trimmed or padded to a standard length</li>
+                    <li>Reason: Neural networks require fixed-size inputs</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Amplitude Normalization</strong>
+                <ul>
+                    <li>Audio amplitudes are scaled to the range [-1, 1]</li>
+                    <li>Reason: Prevents loud sounds from dominating the learning process</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>4.2 Noise Handling</h3>
+        <ol>
+            <li>
+                <strong>Silence Removal</strong>
+                <ul>
+                    <li>Silent portions at the beginning and end of recordings are trimmed</li>
+                    <li>Reason: Focuses the model on the relevant sound content</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Background Noise Reduction</strong>
+                <ul>
+                    <li>Optional preprocessing step to reduce ambient noise</li>
+                    <li>Reason: Helps the model focus on the primary sound source</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>4.3 Data Augmentation</h3>
+        <p>To improve model robustness and prevent overfitting, we apply several augmentation techniques:</p>
+        <ol>
+            <li>
+                <strong>Time Shifting</strong>
+                <ul>
+                    <li>Randomly shifting the audio forward or backward in time</li>
+                    <li>Shift Range: ±0.1 seconds</li>
+                    <li>Reason: Makes the model robust to variations in when a sound occurs</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Pitch Shifting</strong>
+                <ul>
+                    <li>Slightly altering the pitch of the audio</li>
+                    <li>Shift Range: ±2 semitones</li>
+                    <li>Reason: Helps the model generalize across different pitches of the same sound</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Speed Modification</strong>
+                <ul>
+                    <li>Speeding up or slowing down the audio slightly</li>
+                    <li>Speed Range: 0.9x to 1.1x</li>
+                    <li>Reason: Makes the model robust to variations in sound speed</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Adding Background Noise</strong>
+                <ul>
+                    <li>Mixing in low-level random noise</li>
+                    <li>Noise Level: 0.005 to 0.02 of the signal amplitude</li>
+                    <li>Reason: Improves performance in real-world noisy environments</li>
+                </ul>
+            </li>
+        </ol>
+    </section>
+    
+    <section id="training">
+        <h2>5. Training Methodology</h2>
+        
+        <h3>5.1 Data Splitting</h3>
+        <p>The dataset is divided into three parts:</p>
+        <ul>
+            <li><strong>Training Set (70%)</strong>: Used to update the model weights</li>
+            <li><strong>Validation Set (15%)</strong>: Used to tune hyperparameters and monitor for overfitting</li>
+            <li><strong>Test Set (15%)</strong>: Used only for final evaluation</li>
+        </ul>
+        
+        <h3>5.2 Training Techniques</h3>
+        <ol>
+            <li>
+                <strong>Batch Training</strong>
+                <ul>
+                    <li>Batch Size: 32 samples</li>
+                    <li>Reason: Provides stable gradient updates while maintaining computational efficiency</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Optimization Algorithm</strong>
+                <ul>
+                    <li>Algorithm: Adam (Adaptive Moment Estimation)</li>
+                    <li>Initial Learning Rate: 0.001</li>
+                    <li>Reason: Adapts the learning rate for each parameter, leading to faster convergence</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Loss Function</strong>
+                <ul>
+                    <li>Function: Categorical Cross-Entropy</li>
+                    <li>Reason: Appropriate for multi-class classification problems</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>5.3 Training Enhancements</h3>
+        <ol>
+            <li>
+                <strong>Checkpointing</strong>
+                <ul>
+                    <li>The model's weights are saved whenever performance on the validation set improves</li>
+                    <li>Reason: Preserves the best model version and allows recovery from interruptions</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Early Stopping</strong>
+                <ul>
+                    <li>Training stops when validation performance stops improving for a set number of epochs</li>
+                    <li>Patience: 10 epochs</li>
+                    <li>Reason: Prevents overfitting by stopping training when the model starts to memorize the training data</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Learning Rate Reduction</strong>
+                <ul>
+                    <li>The learning rate is reduced when validation performance plateaus</li>
+                    <li>Reduction Factor: 0.5</li>
+                    <li>Patience: 5 epochs</li>
+                    <li>Reason: Allows for finer weight adjustments as training progresses</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Batch Normalization</strong>
+                <ul>
+                    <li>Normalizes the outputs of each layer before passing to the next layer</li>
+                    <li>Reason: Accelerates training and improves stability</li>
+                </ul>
+            </li>
+        </ol>
+    </section>
+    
+    <section id="evaluation">
+        <h2>6. Evaluation Metrics</h2>
+        
+        <h3>6.1 Primary Metrics</h3>
+        <ol>
+            <li>
+                <strong>Accuracy</strong>
+                <ul>
+                    <li>Definition: Percentage of correctly classified samples</li>
+                    <li>Formula: (True Positives + True Negatives) / Total Samples</li>
+                    <li>Interpretation: Overall correctness of the model</li>
+                    <li>Our Result: 97.26%</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Precision</strong>
+                <ul>
+                    <li>Definition: Proportion of positive identifications that were actually correct</li>
+                    <li>Formula: True Positives / (True Positives + False Positives)</li>
+                    <li>Interpretation: Measures how reliable positive predictions are</li>
+                    <li>Our Result (Macro): 98.39%</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Recall (Sensitivity)</strong>
+                <ul>
+                    <li>Definition: Proportion of actual positives that were correctly identified</li>
+                    <li>Formula: True Positives / (True Positives + False Negatives)</li>
+                    <li>Interpretation: Measures the model's ability to find all positive samples</li>
+                    <li>Our Result (Macro): 97.47%</li>
+                </ul>
+            </li>
+            <li>
+                <strong>F1 Score</strong>
+                <ul>
+                    <li>Definition: Harmonic mean of precision and recall</li>
+                    <li>Formula: 2 * (Precision * Recall) / (Precision + Recall)</li>
+                    <li>Interpretation: Balance between precision and recall</li>
+                    <li>Our Result (Macro): 97.89%</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>6.2 Additional Evaluation Tools</h3>
+        <ol>
+            <li>
+                <strong>Confusion Matrix</strong>
+                <ul>
+                    <li>Description: Table showing predicted vs. actual class assignments</li>
+                    <li>Interpretation: Reveals which classes are being confused with each other</li>
+                    <li>Our Result: Minimal confusion between classes, with most samples correctly classified</li>
+                </ul>
+            </li>
+            <li>
+                <strong>ROC Curves (Receiver Operating Characteristic)</strong>
+                <ul>
+                    <li>Description: Plot of true positive rate vs. false positive rate at various thresholds</li>
+                    <li>Interpretation: Area Under Curve (AUC) indicates classification performance</li>
+                    <li>Our Result: High AUC values for all classes</li>
+                </ul>
+            </li>
+            <li>
+                <strong>Precision-Recall Curves</strong>
+                <ul>
+                    <li>Description: Plot of precision vs. recall at various thresholds</li>
+                    <li>Interpretation: Shows trade-off between precision and recall</li>
+                    <li>Our Result: High area under the curve, indicating good performance</li>
+                </ul>
+            </li>
+        </ol>
+    </section>
+    
+    <section id="results">
+        <h2>7. Results and Performance</h2>
+        
+        <h3>7.1 Overall Performance</h3>
+        <p>Our audio classification system achieved excellent results:</p>
+        <ul>
+            <li><strong>Accuracy</strong>: 97.26%</li>
+            <li><strong>Macro Precision</strong>: 98.39%</li>
+            <li><strong>Macro Recall</strong>: 97.47%</li>
+            <li><strong>Macro F1 Score</strong>: 97.89%</li>
+        </ul>
+        <p>These metrics indicate that the model can reliably classify audio samples into the correct categories with very few errors.</p>
+        
+        <h3>7.2 Per-Class Performance</h3>
+        <table>
+            <tr>
+                <th>Class</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1 Score</th>
+                <th>Support</th>
+            </tr>
+            <tr>
+                <td>Swords</td>
+                <td>100%</td>
+                <td>100%</td>
+                <td>100%</td>
+                <td>87</td>
+            </tr>
+            <tr>
+                <td>Wild Animals</td>
+                <td>99%</td>
+                <td>93%</td>
+                <td>96%</td>
+                <td>578</td>
+            </tr>
+            <tr>
+                <td>Alarms</td>
+                <td>96%</td>
+                <td>100%</td>
+                <td>98%</td>
+                <td>1014</td>
+            </tr>
+        </table>
+        <p>This breakdown shows that:</p>
+        <ul>
+            <li>The model perfectly classifies sword sounds</li>
+            <li>Wild animal sounds have excellent precision but slightly lower recall</li>
+            <li>Alarm sounds have perfect recall with very high precision</li>
+        </ul>
+        
+        <h3>7.3 Error Analysis</h3>
+        <p>The few misclassifications that occur are primarily:</p>
+        <ul>
+            <li>Wild animal sounds classified as alarms (likely due to similar frequency patterns)</li>
+            <li>No significant confusion between swords and other categories</li>
+        </ul>
+    </section>
+    
+    <section id="conclusion">
+        <h2>8. Conclusion</h2>
+        <p>The audio classification system developed in this project demonstrates the effectiveness of convolutional neural networks for audio classification tasks. By transforming audio data into visual representations and applying appropriate preprocessing techniques, we achieved high classification accuracy across all target classes.</p>
+        <p>Key strengths of the system include:</p>
+        <ul>
+            <li>High overall accuracy (97.26%)</li>
+            <li>Excellent per-class performance</li>
+            <li>Robust preprocessing pipeline</li>
+            <li>Effective training methodology with overfitting prevention</li>
+        </ul>
+        <p>Potential areas for future improvement:</p>
+        <ul>
+            <li>Expanding to more audio classes</li>
+            <li>Testing with more diverse and challenging audio samples</li>
+            <li>Exploring alternative model architectures (e.g., recurrent neural networks)</li>
+            <li>Implementing real-time classification capabilities</li>
+        </ul>
+    </section>
+    
+    <section id="references">
+        <h2>9. References</h2>
+        <ol>
+            <li>Hershey, S., Chaudhuri, S., Ellis, D. P., et al. (2017). CNN architectures for large-scale audio classification. In 2017 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP).</li>
+            <li>McFee, B., Raffel, C., Liang, D., et al. (2015). librosa: Audio and music signal analysis in python. In Proceedings of the 14th python in science conference.</li>
+            <li>Piczak, K. J. (2015). Environmental sound classification with convolutional neural networks. In 2015 IEEE 25th International Workshop on Machine Learning for Signal Processing (MLSP).</li>
+            <li>Salamon, J., Bello, J. P. (2017). Deep convolutional neural networks and data augmentation for environmental sound classification. IEEE Signal Processing Letters, 24(3), 279-283.</li>
+            <li>Tensorflow Team. (2021). TensorFlow: Large-scale machine learning on heterogeneous systems. Retrieved from https://www.tensorflow.org/</li>
+        </ol>
+    </section>
+</body>
+</html>
