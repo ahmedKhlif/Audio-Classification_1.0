@@ -6,6 +6,8 @@ services:
     image: audio-classification:latest
     container_name: audio-classification
     volumes:
+      - ./:/app
+      # The following ensures specific directories are properly mounted
       - ./evaluation:/app/evaluation
       - ./models:/app/models
       - ./clean:/app/clean
@@ -24,6 +26,8 @@ services:
     container_name: audio-tools
     profiles: ["tools"]
     volumes:
+      - ./:/app
+      # The following ensures specific directories are properly mounted
       - ./evaluation:/app/evaluation
       - ./models:/app/models
       - ./clean:/app/clean

@@ -299,8 +299,8 @@ def build_conv_model():
         # Max pooling layer
         MaxPooling2D((2, 2)),
 
-        # Dropout for regularization
-        Dropout(0.5),
+        # Dropout for regularization (reduced from 0.5 to 0.3 for more consistent training/validation)
+        Dropout(0.3),
 
         # Flatten the output for dense layers
         Flatten(),
@@ -382,6 +382,13 @@ if __name__ == "__main__":
         features, labels, test_size=0.1, random_state=42
     )
 
+    # Store the min and max values from training data to ensure consistent normalization
+    config.min = np.min(train_features)
+    config.max = np.max(train_features)
+
+    # Print normalization values for debugging
+    print(f"Using normalization range: min={config.min}, max={config.max}")
+
     # Store features and labels in config
     config.data = (train_features, train_labels)
 
@@ -390,8 +397,12 @@ if __name__ == "__main__":
     input_shape = (train_features.shape[1], train_features.shape[2], 1)
     model = build_conv_model()
 
-    # Compute class weights for imbalanced dataset
+    # Compute class weights for imbalanced dataset, but make them less extreme
     class_weights = compute_class_weight('balanced', classes=np.unique(flat_labels), y=flat_labels)
+
+    # Moderate the class weights to reduce their impact (closer to 1.0)
+    class_weights = 0.5 * class_weights + 0.5 * np.ones_like(class_weights)
+
     class_weight_dict = dict(zip(range(len(classes)), class_weights))
 
     # Set up model checkpoint (simpler version like GitHub repo)
@@ -416,13 +427,14 @@ if __name__ == "__main__":
     print(f"Batch size: {config.batch_size}")
     print(f"Class weights: {class_weight_dict}")
 
-    # Start training with simpler parameters (like GitHub repo)
+    # Use the manually split validation set instead of validation_split
     history = model.fit(
         train_features, train_labels,
         epochs=config.epochs,
         batch_size=config.batch_size,
         shuffle=True,
-        validation_split=0.1,
+        validation_data=(val_features, val_labels),  # Use the validation set we created earlier
+        class_weight=class_weight_dict,  # Apply class weights consistently
         callbacks=[checkpoint]
     )
 

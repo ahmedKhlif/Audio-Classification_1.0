@@ -85,16 +85,9 @@ def extract_features(audio_file, config):
         # Stack the features
         mfcc_features = np.concatenate([mfcc_features, delta_feat, delta2_feat], axis=1)
 
-        # Since we removed the pickle-based normalization, we'll use a standard normalization
-        # Normalize features to range [0, 1] based on the current file's min/max
-        min_val = np.min(mfcc_features)
-        max_val = np.max(mfcc_features)
-
-        # Avoid division by zero
-        if max_val > min_val:
-            normalized_features = (mfcc_features - min_val) / (max_val - min_val)
-        else:
-            normalized_features = mfcc_features  # If all values are the same, don't normalize
+        # Use the same normalization approach as in training
+        # Normalize using the min/max values from the config
+        normalized_features = (mfcc_features - config.min) / (config.max - config.min)
 
         # Reshape for CNN input
         if config.mode == 'conv':
@@ -133,16 +126,9 @@ def extract_features(audio_file, config):
         # Stack the features
         mfcc_features = np.concatenate([mfcc_features, delta_feat, delta2_feat], axis=1)
 
-        # Since we removed the pickle-based normalization, we'll use a standard normalization
-        # Normalize features to range [0, 1] based on the current file's min/max
-        min_val = np.min(mfcc_features)
-        max_val = np.max(mfcc_features)
-
-        # Avoid division by zero
-        if max_val > min_val:
-            normalized_features = (mfcc_features - min_val) / (max_val - min_val)
-        else:
-            normalized_features = mfcc_features  # If all values are the same, don't normalize
+        # Use the same normalization approach as in training
+        # Normalize using the min/max values from the config
+        normalized_features = (mfcc_features - config.min) / (config.max - config.min)
 
         if config.mode == 'conv':
             normalized_features = normalized_features.reshape(
@@ -235,10 +221,14 @@ def evaluate_model():
     if cached_data:
         features, labels = cached_data.data
 
-        # Use 10% of the data for testing
+        # Use 10% of the data for testing - use the same random_state as in training
+        # to ensure consistent evaluation
         _, test_features, _, test_labels = train_test_split(
             features, labels, test_size=0.1, random_state=42
         )
+
+        # Print normalization values for debugging
+        print(f"Using normalization range: min={config.min}, max={config.max}")
     else:
         print("No cached data found. Cannot evaluate model.")
         return {}
